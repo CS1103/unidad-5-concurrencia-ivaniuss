@@ -27,14 +27,16 @@ int main(){
     };
     for(int j=0; j<nt; j++)
         vec_thread[j] = thread(filler, range*j, range*(j+1));
-    for(auto &t:vec_thread)
-        t.join();
+    for(auto &t:vec_thread){
+        if (t.joinable())
+            t.join();
+    }
+
     for(auto &item:vec)
         cout<<item<<" ";
     cout<<endl;
 
 
-    //SUMA DE LOS VALORES
     vector<promise<int>> vec_promise(nt);
     vector<future<int>> vec_future(nt);
     vector<thread> vec_thread2(nt);
@@ -50,7 +52,8 @@ int main(){
     for (int i = 0; i < nt; i++)
         vec_thread2[i] = thread(summarizer,ref(vec_promise[i]),range*i,range*(i+1));
     for(int i = 0; i<nt; i++)
-        vec_thread2[i].join();
+        if (vec_thread2[i].joinable())
+            vec_thread2[i].join();
     auto suma2 = accumulate(begin(vec_future),end(vec_future),0,
                             [](int a, future<int> &ftr){
                                 return a + ftr.get();
